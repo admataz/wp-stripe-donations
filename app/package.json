@@ -1,0 +1,14 @@
+{
+  "name": "wp-stripe-donate",
+  "version": "1.0.0",
+  "description": "WordPress plugin for managing donations via Stripe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adam Davis <adam@admataz.com>",
+  "license": "MIT",
+  "dependencies": {
+    "jquery.payment": "^1.2.4"
+  }
+}
