@@ -1,0 +1,17 @@
+{
+    "name": "admataz/wp-stripe-donations",
+    "description": "WordPress plugin to manage Stripe as a payment gateway for donations",
+    "require": {
+        "stripe/stripe-php": "2.*"
+    },
+    "autoload": {
+        "psr-4": {"WP_Stripe_Donations\\": "classes/"}
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adam Davis",
+            "email": "adam@admataz.com"
+        }
+    ]
+}
