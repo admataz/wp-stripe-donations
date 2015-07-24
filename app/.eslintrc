@@ -1,0 +1,21 @@
+{
+  "env": {
+    "browser": true,
+    "jquery": true
+
+  },
+  "rules": {
+    "quotes": "single",
+    "camelcase": false,
+
+    "max-nested-callbacks": [2, 3],
+
+    "handle-callback-err": true,
+    "no-path-concat": true,
+    "no-new-require": true,
+    "no-mixed-requires": true,
+    "no-underscore-dangle": false,
+    "dot-notation": false,
+    "strict": "never"
+  }
+}
