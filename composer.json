@@ -15,7 +15,7 @@
         "wdalmut/wordpress-extension": "*"
     },
     "autoload": {
-        "psr-4": {"WP_Stripe_Donations\\": "classes/"}
+        "psr-4": {"adz_stripe_donations\\": "classes/"}
     },
     "license": "MIT",
     "authors": [
