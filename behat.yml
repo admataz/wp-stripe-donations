@@ -1,0 +1,8 @@
+default:
+    extensions:
+        Behat\MinkExtension\Extension:
+            base_url:    'http://192.168.10.2:8001'
+            goutte:      ~
+            show_cmd: "firefox %s"
+        Corley\WordPressExtension\Extension:
+            path: "../wordpress"

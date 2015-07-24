@@ -4,6 +4,16 @@
     "require": {
         "stripe/stripe-php": "2.*"
     },
+    "require-dev" : {
+        "behat/behat": "2.5.*@stable",
+        "behat/mink": "1.4.*@stable",
+        "behat/mink-extension": "*",
+        "behat/mink-goutte-driver": "*",
+        "behat/mink-selenium2-driver": "*",
+        "behat/mink-zombie-driver": "*",
+        "phpunit/phpunit": "~4.7.0",
+        "wdalmut/wordpress-extension": "*"
+    },
     "autoload": {
         "psr-4": {"WP_Stripe_Donations\\": "classes/"}
     },
