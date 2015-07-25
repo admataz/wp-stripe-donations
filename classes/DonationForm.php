@@ -1,5 +1,6 @@
 <?php
 namespace adz_stripe_donations;
+use \Exception as Exception;
 
 class DonationForm extends Base {
     var $formTemplate = '';
@@ -12,14 +13,6 @@ class DonationForm extends Base {
         $adz_stripe_settings = \adz_stripe_donations\Settings::get_instance('adz_stripe_settings');
         $this->stripe_public_key = $adz_stripe_settings->get('adz_stripe_public_key');
         $this->stripe_private_key = $adz_stripe_settings->get('adz_stripe_private_key');
-        
-        // add_action('wp_enqueue_scripts', array(
-        //     $this,
-        //     'enqueue_scripts'
-        // ));
-
-        
-        
         parent::__construct($slug);
     }
     
@@ -52,6 +45,12 @@ class DonationForm extends Base {
         
         $wp_nonce_field = wp_nonce_field($this->nonce_id, '_wpnonce',  true, false);
         
+        $donate['defaults']['currency'] = $stripe_account->default_currency;
+        $currencies = $stripe_account->currencies_supported;
+        $index = array_search($stripe_account->default_currency, $currencies);
+        array_splice($currencies, $index, 1);
+        array_unshift($currencies, $stripe_account->default_currency);
+
         ob_start();
         include $this->formTemplate;
         $return = ob_get_contents();
@@ -141,24 +140,29 @@ class DonationForm extends Base {
     );
 
 
-    if (in_array($_POST['plan'], array(
-      'once_small',
-      'once_medium',
-      'once_large',
-      'once_custom'
-    ))) {
-      $payload['amount'] = $_POST['amount'] * 100;
-      $payload['currency'] = 'gbp';
-    } else {
+    \Stripe\Stripe::setApiKey($this->stripe_private_key);
+    
+    try{
+      $plan = \Stripe\Plan::retrieve($_POST['plan']);
+    } catch (\Stripe\Error\Base $e) {
+      $plan = null;
+    } catch (Exception $e) {
+      $plan = null;
+    }
+
+    if($plan){
       $payload['plan'] = $_POST['plan'];
       $payload['email'] = $_POST['email'];
       if ($_POST['plan'] == 'monthly_custom') {
-        $payload['quantity'] = $_POST['amount'];
+        $payload['quantity'] = $_POST['custom_amount'];
       } else {
         $payload['quantity'] = 1;
       }
+    } else {
+      $stripe_account = \Stripe\Account::retrieve();
+      $payload['amount'] = $_POST['amount'] * 100;
+      $payload['currency'] = $stripe_account->default_currency;
     }
-
 
 
     return $payload;
@@ -263,10 +267,11 @@ class DonationForm extends Base {
   public function form_submit() {
 
     header("Content-type: application/json");
+    
     $input_errors = $this->form_errors();
+    
     if (!count($input_errors)) {
-     \Stripe\Stripe::setApiKey($this->stripe_private_key);
-      
+      \Stripe\Stripe::setApiKey($this->stripe_private_key);
       $payload = $this->generate_payload();
       $response = $this->handle_stripe_response($payload);
       if($response['success']){
