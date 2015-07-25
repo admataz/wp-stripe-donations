@@ -69,7 +69,6 @@
       <label>
         <span>Card Number*</span>
         <input type="text" size="25" data-stripe="number" class="cc-number"  name="cc-number" placeholder="Card number" required  value="<?php echo !empty($donate['defaults']['cc-number']) ? $donate['defaults']['cc-number'] : '' ?>" />
-        <small class="text-muted"><span class="cc-brand"></span></small>
       </label>
     </div>
 
@@ -90,6 +89,13 @@
         <span> / </span>
         <input type="text" size="4" data-stripe="exp-year" name="exp-year" id="exp-month"  class="exp-year" placeholder="YYYY" required  value="<?php echo !empty($donate['defaults']['exp-year']) ? $donate['defaults']['exp-year'] : '' ?>"  />
       </div>
+    </div>
+
+    <div class="form-row">
+      <label>
+        <span>Cardholder's full name</span>
+        <input type="text" size="25" class="cc-name"  data-stripe="name"  name="cc-name" placeholder="Your name"   value="<?php echo !empty($donate['defaults']['cc-name']) ? $donate['defaults']['cc-name'] : '' ?>" />
+      </label>
     </div>
 
     </fieldset>

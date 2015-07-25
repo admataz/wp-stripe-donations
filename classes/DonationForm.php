@@ -8,6 +8,8 @@ class DonationForm extends Base {
     private $stripe_public_key = '';
     private $stripe_private_key = '';
     var $nonce_id = 'legend of big jo and phantom 309';
+    private $zero_decimal_currencies = array('bif','clp','djf','gnf','jpy','kmf','krw','mga','pyg','rwf','vnd','vuv','xaf','xof','xpf');
+
     
     function __construct($slug = '') {
         $adz_stripe_settings = \adz_stripe_donations\Settings::get_instance('adz_stripe_settings');
@@ -110,7 +112,7 @@ class DonationForm extends Base {
 
 
 
-  function save_giftaid_data($response) {
+  function save_extra_data($response) {
     if (isset($_POST['giftaid'])) {
       $customer_data = $_POST['customer'];
       foreach ($customer_data as $key => $value) {
@@ -131,9 +133,8 @@ class DonationForm extends Base {
     
     $payload = array(
       'description' => "Donation from " . $_POST['email'],
-      // 'receipt_email' => $_POST['email'],
-      'card' => $_POST['stripeToken'], // obtained with Stripe.js
-      // 'statement_description' => 'ABF donation',
+      'receipt_email' => $_POST['email'],
+      'card' => $_POST['stripeToken'], 
       'metadata' => array_merge(array(
         'email' => htmlspecialchars($_POST['email'])
       ))
@@ -159,9 +160,12 @@ class DonationForm extends Base {
         $payload['quantity'] = 1;
       }
     } else {
-      $stripe_account = \Stripe\Account::retrieve();
-      $payload['amount'] = $_POST['amount'] * 100;
-      $payload['currency'] = $stripe_account->default_currency;
+      $payload['currency'] = $_POST['currency'];
+      if(!in_array(strtolower($payload['currency']), $this->zero_decimal_currencies)){
+        $payload['amount'] = $_POST['amount'] * 100;
+      } else {
+        $payload['amount'] = $_POST['amount'];
+      }
     }
 
 
@@ -185,9 +189,15 @@ class DonationForm extends Base {
         );
       } else {
         $stripe_response = \Stripe\Charge::create($payload);
+        if(!in_array(strtolower($payload['currency']), $this->zero_decimal_currencies)){
+          $amount = $stripe_response->amount/100;
+        } else {
+          $amount = $stripe_response->amount;
+        }
+
         $response = array(
           'type' => 'once_off',
-          'amount' => $stripe_response->amount/100,
+          'amount' => $amount,
           'success' => true,
           'error' => false,
           'stripe' => $stripe_response
@@ -275,7 +285,7 @@ class DonationForm extends Base {
       $payload = $this->generate_payload();
       $response = $this->handle_stripe_response($payload);
       if($response['success']){
-        $this->save_giftaid_data($response);
+        $this->save_extra_data($response);
       }
     } else {
       $response = array(
