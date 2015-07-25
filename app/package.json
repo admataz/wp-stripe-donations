@@ -4,7 +4,12 @@
   "description": "WordPress plugin for managing donations via Stripe",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "browserify-js": "browserify --debug  ./index.js | exorcist ../adz-stripe-donations.js.map  > ../adz-stripe-donations.js",
+    "uglify-js": "uglifyjs ../adz-stripe-donations.js -o ../adz-stripe-donations.min.js -c --source-map ../adz-stripe-donations.u.js.map --source-map-url ./adz-stripe-donations.u.js.map  --in-source-map ../adz-stripe-donations.js.map",
+    "process-js": "npm run browserify-js && npm run uglify-js",
+    "watch-js": "fsmonitor -d './' -s '+*.js' npm run process-js",
+    "watch": "npm run watch-js"
   },
   "author": "Adam Davis <adam@admataz.com>",
   "license": "MIT",

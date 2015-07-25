@@ -3,19 +3,16 @@
 namespace adz_stripe_donations;
 
 class Settings extends Base {
-   
-
-    function __construct($slug='') {
+    
+    function __construct($slug = '') {
         //
         add_action('admin_init', array(
             $this,
             'register_plugin_settings'
         ));
-
+        
         parent::__construct($slug);
     }
-    
-    
     
     function register_plugin_settings() {
         register_setting('adz_stripe_settings', 'adz_stripe_settings', array(
@@ -27,12 +24,11 @@ class Settings extends Base {
             'options_section_stripe_settings'
         ) , 'adz_stripe_settings_admin');
         
-        
         add_settings_field('adz_stripe_private_key', 'Stripe Secret Key', array(
             $this,
             'private_key_form_input'
         ) , 'adz_stripe_settings_admin', 'adz_stripe_settings');
-
+        
         add_settings_field('adz_stripe_public_key', 'Stripe Publishable Key', array(
             $this,
             'public_key_form_input'
@@ -40,7 +36,8 @@ class Settings extends Base {
     }
     
     function settings_validate($input) {
-
+        
+        
         foreach ($input as $k => $v) {
             $input[$k] = trim($v);
         }

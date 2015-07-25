@@ -2,7 +2,8 @@
     "name": "admataz/wp-stripe-donations",
     "description": "WordPress plugin to manage Stripe as a payment gateway for donations",
     "require": {
-        "stripe/stripe-php": "2.*"
+        "stripe/stripe-php": "2.*",
+        "symfony/Intl": "^2.7"
     },
     "require-dev" : {
         "behat/behat": "2.5.*@stable",

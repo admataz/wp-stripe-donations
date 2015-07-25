@@ -4,5 +4,5 @@
 # Ignore the /vendor/ directory for people using composer
 /vendor/
 
-
+*.js.map
 
