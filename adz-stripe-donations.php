@@ -40,7 +40,9 @@ $adz_stripe_enqueue_scripts = function() use ($adz_stripe_settings) {
 
 };
 
-
+function adz_stripe_donations_activate(){
+    \adz_stripe_donations\CustomSave::activate();
+}
 
 
 function adz_stripe_admin_landing_page() {
@@ -61,4 +63,6 @@ add_shortcode('adz_stripe_donations_default_form', 'adz_stripe_donations_default
 add_action('admin_menu', $adz_stripe_admin_menu);
 add_action( 'wp_ajax_submit_donation', 'adz_stripe_donations_form_submit');
 add_action( 'wp_ajax_nopriv_submit_donation', 'adz_stripe_donations_form_submit');
+
+register_activation_hook( __FILE__, 'adz_stripe_donations_activate' );
 

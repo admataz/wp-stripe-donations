@@ -130,6 +130,7 @@ function stripeResponseHandler( status, response ) {
 
 function onFormSubmit( event ) {
   var $form = $( '#stripe-donation-form' );
+ 
 
   event.preventDefault();
   if ( doValidation() ) {

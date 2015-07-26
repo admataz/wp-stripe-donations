@@ -113,16 +113,53 @@ class DonationForm extends Base {
 
 
   function save_extra_data($response) {
-    if (isset($_POST['giftaid'])) {
-      $customer_data = $_POST['customer'];
-      foreach ($customer_data as $key => $value) {
-        $customer_data[$key] = htmlspecialchars($value);
-      }
-      $customer_data['amount'] = htmlspecialchars($_POST['amount']);
-      $customer_data['plan'] = htmlspecialchars($_POST['plan']);
-      $stripe = $response['stripe'];
-      file_put_contents('giftaid/' . $stripe->id . '.json', json_encode($customer_data));
+    \Stripe\Stripe::setApiKey($this->stripe_private_key);
+      
+    $stripe = $response['stripe'];
+
+    $customer_data = array();
+
+    $extra_fields = array();
+    foreach ($_POST['customer'] as $key => $value) {
+      $extra_fields[$key] = htmlspecialchars($value);
     }
+
+    $customer_data['extra_fields'] = json_encode($extra_fields);
+
+    $customer_data['plan'] = htmlspecialchars($_POST['plan']);
+    $customer_data['email'] = htmlspecialchars($_POST['email']);
+
+    if (isset($_POST['giftaid'])) {
+      $customer_data['giftaid'] = 1;
+    } else {
+      $customer_data['giftaid'] = 0;
+    }
+
+    if($stripe->object == 'customer'){
+      $customer_data['stripe_type'] = 'customer';
+      $customer_data['stripe_id'] = $stripe->id;
+      $plan = \Stripe\Plan::retrieve($_POST['plan']);
+      $customer_data['currency'] = $plan->currency;
+
+      if($_POST['plan'] == 'monthly_custom'){
+        $amount = $_POST['quantity'] * $plan->amount;
+      } else {
+        $amount = $plan->amount;
+      }
+
+      $customer_data['amount'] = $amount;
+      $customer_data['amount_converted'] = $amount;
+    } else {
+      $customer_data['stripe_type'] = 'charge';
+      $customer_data['stripe_id'] = $stripe->id;
+      $customer_data['currency'] = $stripe->currency;
+      $customer_data['amount'] = $stripe->amount;
+      $bt = \Stripe\BalanceTransaction::retrieve($stripe->balance_transaction);
+      $customer_data['amount_converted'] = $bt->amount;
+    }
+
+    \adz_stripe_donations\CustomSave::add_record($customer_data);
+
   }
   
 
@@ -133,7 +170,6 @@ class DonationForm extends Base {
     
     $payload = array(
       'description' => "Donation from " . $_POST['email'],
-      'receipt_email' => $_POST['email'],
       'card' => $_POST['stripeToken'], 
       'metadata' => array_merge(array(
         'email' => htmlspecialchars($_POST['email'])
@@ -161,6 +197,7 @@ class DonationForm extends Base {
       }
     } else {
       $payload['currency'] = $_POST['currency'];
+      $payload['receipt_email'] = $_POST['email'];
       if(!in_array(strtolower($payload['currency']), $this->zero_decimal_currencies)){
         $payload['amount'] = $_POST['amount'] * 100;
       } else {
@@ -181,7 +218,7 @@ class DonationForm extends Base {
         $stripe_response = \Stripe\Customer::create($payload);
         $response = array(
           'type' => 'monthly',
-          'amount' => htmlspecialchars($_POST['amount']) . ' (monthly)',
+          'amount' => htmlspecialchars($stripe_response->plan->amount) . ' (monthly)',
           'email' => htmlspecialchars($_POST['email']) ,
           'success' => true,
           'error' => false,
@@ -273,6 +310,8 @@ class DonationForm extends Base {
     }
     return $response;
   }
+
+
   
   public function form_submit() {
 
