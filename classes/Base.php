@@ -12,7 +12,7 @@ class Base {
      */
     public function get_slug($function = '') {
         $slug = $this->plugin_slug;
-        if(strlen($this->module_slud)){
+        if(strlen($this->module_slug)){
          $slug .= '_' . $this->module_slug;
         }
         if (strlen($function)) {
