@@ -9,8 +9,9 @@ class CustomSave {
         global $wpdb;
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         
+        $table_name = $wpdb->prefix . "adz_stripe_donations"; 
         
-        $sql = "CREATE TABLE adz_stripe_donations (
+        $sql = "CREATE TABLE $table_name (
           id int(11) unsigned NOT NULL AUTO_INCREMENT,
           stripe_id varchar(255) NOT NULL DEFAULT '',
           created datetime DEFAULT NULL,
@@ -30,7 +31,8 @@ class CustomSave {
 
     public static function add_record($to_save = array()){
       global $wpdb;
-      $wpdb->insert('adz_stripe_donations', $to_save);
+      $table_name = $wpdb->prefix . "adz_stripe_donations"; 
+      $wpdb->insert($table_name, $to_save);
     }
 
 
