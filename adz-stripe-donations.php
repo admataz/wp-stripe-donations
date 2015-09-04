@@ -1,14 +1,22 @@
 <?php
-/*
-Plugin Name: The admataz Stripe Donations manager
-Version: 1.0.0
-Description: Provide common Stripe management and data functions from within WP admin
-Author: Adam Davis
-Author URI: http://admataz.com
-Plugin URI: http://admataz.com
-Text Domain: adz-stripe
-Domain Path: /languages
+/**
+ * 
+ * Plugin Name: The admataz Stripe Donations manager
+ * Version: 1.0.0
+ * Description: Provide common Stripe management and data functions from within WP admin
+ * Author: Adam Davis
+ * Author URI: http://admataz.com
+ * Plugin URI: http://admataz.com
+ * Text Domain: adz-stripe
+ * Domain Path: /languages
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Domain Path:       /languages
+ * GitHub Plugin URI: https://github.com/admataz/wp-stripe-donations 
 */
+
+
+
 
 require 'vendor/autoload.php';
 
@@ -26,7 +34,9 @@ $adz_stripe_admin_menu = function() use($adz_stripe_settings) {
 };
 
 /**
- * Callback using closure for the scripts
+ * Callback using closure for the scripts  
+ * 
+ * ??what was I doing here again?
  */
 $adz_stripe_enqueue_scripts = function() use ($adz_stripe_settings) {
     // potentially make the loading of this js conditional - but we may want it available to a widget that can appear on any page

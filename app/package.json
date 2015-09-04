@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "browserify-js": "browserify --debug  ./index.js | exorcist ../adz-stripe-donations.js.map  > ../adz-stripe-donations.js",
-    "uglify-js": "uglifyjs ../adz-stripe-donations.js -o ../adz-stripe-donations.min.js -c --source-map ../adz-stripe-donations.u.js.map --source-map-url ./adz-stripe-donations.u.js.map  --in-source-map ../adz-stripe-donations.js.map",
+    "browserify-js": "browserify -s AdzStripeDonations --debug  ./index.js | exorcist ../js/adz-stripe-donations.js.map  > ../js/adz-stripe-donations.js",
+    "uglify-js": "uglifyjs ../js/adz-stripe-donations.js -o ../js/adz-stripe-donations.min.js -c --source-map ../js/adz-stripe-donations.u.js.map --source-map-url ./adz-stripe-donations.u.js.map  --in-source-map ../js/adz-stripe-donations.js.map",
     "process-js": "npm run browserify-js && npm run uglify-js",
     "watch-js": "fsmonitor -d './' -s '+*.js' npm run process-js",
     "watch": "npm run watch-js"

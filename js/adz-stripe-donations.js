@@ -1,11 +1,28 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-$ = jQuery;
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.AdzStripeDonations = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+var donationForm = require('./lib/donationForm');
+
+
+module.exports = {
+  donationForm: donationForm
+}
+},{"./lib/donationForm":2}],2:[function(require,module,exports){
+/**
+ * This is essentially an interface to Stripe, providing the ability to capture extra data in the WP system
+ *
+ * This can be attached to an embedded form on the page, or can be called via some other JS
+ * 
+ */
+
+var $ = jQuery;
 
 require( 'jquery.payment' );
 
 /*global adz_stripe_donations_vars, Stripe*/
 
-
+// the id for the dom element that will contain the stripe form
+var stripe_donation_form = '#stripe-donation-form';
+var form_submitted_callback = null;
 
 function testCreateToken() {
   Stripe.card.createToken( {
@@ -57,7 +74,7 @@ function setupValidation() {
 function doValidation() {
   var cardType = $.payment.cardType( $( '.cc-number' )
     .val() );
-  
+
   var giftaid_required = [ '#input-title', '#input-firstname', '#input-lastname', '#input-address1', '#input-postcode' ];
 
   $( '.cc-number' )
@@ -94,16 +111,18 @@ function doValidation() {
 }
 
 
-function onFormDataSaved(res){
+function onFormDataSaved( res ) {
 
-  console.log(res);
+  if(form_submitted_callback){
+    form_submitted_callback(res);
+  }
 
 }
 
 
 //curl 'http://localhost:8001/wp-admin/admin-ajax.php' -H 'Pragma: no-cache' -H 'Origin: http://localhost:8001' -H 'Accept-Encoding: gzip, deflate' -H 'Accept-Language: en-US,en;q=0.8' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36' -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'Accept: */*' -H 'Cache-Control: no-cache' -H 'X-Requested-With: XMLHttpRequest' -H 'Cookie: wordpress_2960987f325c78c0786dfca7add156d6=admin%7C1437941179%7CvdnXhprdYGO5MLm4kt6DVJiElmJFWqRKmOW6LGdOnB4%7C6f1d686213db3cc55e7530bd88998af690cf65126bf0fb1821179b08b9657768; _jsuid=1249203764; _ga=GA1.1.692927670.1427208732; wordpress_test_cookie=WP+Cookie+check; wordpress_logged_in_2960987f325c78c0786dfca7add156d6=admin%7C1437941179%7CvdnXhprdYGO5MLm4kt6DVJiElmJFWqRKmOW6LGdOnB4%7Cc880f8998d0b68958f0f9761d13fe89e9920772c91af58f0d6e4b5760a4fca10; wp-settings-1=hidetb%3D0; wp-settings-time-1=1437827900' -H 'Connection: keep-alive' -H 'Referer: http://localhost:8001/?p=1' --data '_wpnonce=c47f4ec1ee&_wp_http_referer=%2F%3Fp%3D1&amount=&plan=monthly_large&custom_amount=&email=adam-test%40admataz.com&cc-number=4242+4242+4242+4242&cc-cvc=123&exp-month=12&exp-year=2016&customer%5Btitle%5D=&customer%5Bfirst_name%5D=&customer%5Blast-name%5D=&customer%5Baddress_1%5D=&customer%5Baddress_2%5D=&customer%5Baddress_3%5D=&customer%5Bpostcode%5D=&stripeToken=tok_16SYIs2etNjjAlsK0UnC6LKF&action=submit_donation' --compressed
 function stripeResponseHandler( status, response ) {
-  var $form = $( '#stripe-donation-form' );
+  var $form = $( stripe_donation_form );
   if ( response.error ) {
     // Show the errors on the form
     $form.find( '.payment-errors' )
@@ -118,7 +137,7 @@ function stripeResponseHandler( status, response ) {
       .val( token ) );
 
     // for the WP ajax hook
-    $form.append( $( '<input type="hidden" name="action" value="submit_donation" />'));
+    $form.append( $( '<input type="hidden" name="action" value="submit_donation" />' ) );
 
     $.post(
       adz_stripe_donations_vars.ajaxurl,
@@ -129,8 +148,8 @@ function stripeResponseHandler( status, response ) {
 }
 
 function onFormSubmit( event ) {
-  var $form = $( '#stripe-donation-form' );
- 
+  var $form = $( stripe_donation_form );
+
 
   event.preventDefault();
   if ( doValidation() ) {
@@ -139,22 +158,43 @@ function onFormSubmit( event ) {
   // Disable the submit button to prevent repeated clicks
   $form.find( 'button' )
     .prop( 'disabled', true );
+
   Stripe.card.createToken( $form, stripeResponseHandler );
   // Prevent the form from submitting with the default action
   return false;
 }
 
-function init() {
-  $.getScript( adz_stripe_donations_vars.stripe_js_url, onStripeJsLoaded );
+function init( form_id, launchedCallback, submittedCallback ) {
+  if ( form_id ) {
+    stripe_donation_form = form_id;
+  }
+
+  if(submittedCallback) {
+    form_submitted_callback = submittedCallback;
+  }
+
+
   setupInterface();
   setupValidation();
-  $('#stripe-donation-form').submit(onFormSubmit);
+  $( stripe_donation_form )
+    .submit( onFormSubmit );
+
+  $.getScript( adz_stripe_donations_vars.stripe_js_url, function() {
+    onStripeJsLoaded()
+    if ( launchedCallback ) {
+      launchedCallback();
+    }
+  } );
+  
 }
 
-$(init);
+
+module.exports = init;
 
 
-},{"jquery.payment":2}],2:[function(require,module,exports){
+// $(init);
+
+},{"jquery.payment":3}],3:[function(require,module,exports){
 // Generated by CoffeeScript 1.7.1
 (function() {
   var cardFromNumber, cardFromType, cards, defaultFormat, formatBackCardNumber, formatBackExpiry, formatCardNumber, formatExpiry, formatForwardExpiry, formatForwardSlashAndSpace, hasTextSelected, luhnCheck, reFormatCVC, reFormatCardNumber, reFormatExpiry, reFormatNumeric, restrictCVC, restrictCardNumber, restrictExpiry, restrictNumeric, setCardType,
@@ -747,5 +787,6 @@ $(init);
 
 }).call(this);
 
-},{}]},{},[1])
+},{}]},{},[1])(1)
+});
 //# sourceMappingURL=adz-stripe-donations.js.map

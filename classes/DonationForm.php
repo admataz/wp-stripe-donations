@@ -63,7 +63,7 @@ class DonationForm extends Base {
     
     public function enqueue_scripts() {
         
-        wp_enqueue_script('adz_stripe_donations', plugins_url('adz-stripe-donations.js', dirname(__FILE__)) , array(
+        wp_enqueue_script('adz_stripe_donations', plugins_url('js/adz-stripe-donations.js', dirname(__FILE__)) , array(
             'jquery'
         ) , '1.0');
         $local_vars = array(
@@ -127,6 +127,7 @@ class DonationForm extends Base {
     $customer_data['extra_fields'] = json_encode($extra_fields);
 
     $customer_data['plan'] = htmlspecialchars($_POST['plan']);
+    $customer_data['created'] = $response['created'];
     $customer_data['email'] = htmlspecialchars($_POST['email']);
 
     if (isset($_POST['giftaid'])) {
@@ -222,7 +223,8 @@ class DonationForm extends Base {
           'email' => htmlspecialchars($_POST['email']) ,
           'success' => true,
           'error' => false,
-          'stripe' => $stripe_response
+          'stripe' => $stripe_response,
+          'created' => $stripe_response->created
         );
       } else {
         $stripe_response = \Stripe\Charge::create($payload);
@@ -237,7 +239,8 @@ class DonationForm extends Base {
           'amount' => $amount,
           'success' => true,
           'error' => false,
-          'stripe' => $stripe_response
+          'stripe' => $stripe_response,
+          'created' => $stripe_response->created
         );
       }
     }
