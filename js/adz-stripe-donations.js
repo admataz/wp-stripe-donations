@@ -11,6 +11,12 @@ module.exports = {
  * This is essentially an interface to Stripe, providing the ability to capture extra data in the WP system
  *
  * This can be attached to an embedded form on the page, or can be called via some other JS
+ *
+ * exposes a single initialiser function with the following signature:
+ *
+ * form_id, launchedCallback, submittedCallback
+ *
+ * 
  * 
  */
 
@@ -21,8 +27,10 @@ require( 'jquery.payment' );
 /*global adz_stripe_donations_vars, Stripe*/
 
 // the id for the dom element that will contain the stripe form
-var stripe_donation_form = '#stripe-donation-form';
+var stripe_donation_form = '#adz-stripe-donation-form';
 var form_submitted_callback = null;
+var form_response_callback = null;
+var form_error_callback = null;
 
 function testCreateToken() {
   Stripe.card.createToken( {
@@ -113,8 +121,8 @@ function doValidation() {
 
 function onFormDataSaved( res ) {
 
-  if(form_submitted_callback){
-    form_submitted_callback(res);
+  if(form_response_callback){
+    form_response_callback(res);
   }
 
 }
@@ -148,23 +156,35 @@ function stripeResponseHandler( status, response ) {
 }
 
 function onFormSubmit( event ) {
+
   var $form = $( stripe_donation_form );
 
 
   event.preventDefault();
   if ( doValidation() ) {
+    if(form_error_callback){
+      form_error_callback();
+    }
     return false;
   }
+
+
   // Disable the submit button to prevent repeated clicks
   $form.find( 'button' )
     .prop( 'disabled', true );
 
   Stripe.card.createToken( $form, stripeResponseHandler );
+
+  if(form_submitted_callback){
+    form_submitted_callback(res);
+  }
+  
   // Prevent the form from submitting with the default action
   return false;
 }
 
-function init( form_id, launchedCallback, submittedCallback ) {
+function init( form_id, launchedCallback, submittedCallback, responseCallback, errorCallback ) {
+  var formObj;
   if ( form_id ) {
     stripe_donation_form = form_id;
   }
@@ -173,11 +193,19 @@ function init( form_id, launchedCallback, submittedCallback ) {
     form_submitted_callback = submittedCallback;
   }
 
+    if(responseCallback) {
+    form_response_callback = responseCallback;
+  }
+
+  if(errorCallback) {
+    form_error_callback = errorCallback;
+  }
+
+  formObj = $( stripe_donation_form );
 
   setupInterface();
   setupValidation();
-  $( stripe_donation_form )
-    .submit( onFormSubmit );
+  formObj.submit( onFormSubmit );
 
   $.getScript( adz_stripe_donations_vars.stripe_js_url, function() {
     onStripeJsLoaded()
@@ -185,6 +213,9 @@ function init( form_id, launchedCallback, submittedCallback ) {
       launchedCallback();
     }
   } );
+
+
+  return formObj;
   
 }
 

@@ -31,8 +31,13 @@ class CustomSave {
 
     public static function add_record($to_save = array()){
       global $wpdb;
+
+    
+
       $table_name = $wpdb->prefix . "adz_stripe_donations"; 
-      $wpdb->insert($table_name, $to_save);
+      $to_save['created'] = date("Y-m-d H:i:s", $to_save['created']);      
+      $q = $wpdb->insert($table_name, $to_save);
+
     }
 
 

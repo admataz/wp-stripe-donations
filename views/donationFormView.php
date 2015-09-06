@@ -1,8 +1,7 @@
-  <form action="" method="POST" id="stripe-donation-form" autocomplete="on">
-
+  <form action="" method="POST" id="adz-stripe-donation-form" autocomplete="on">
     <?php print $wp_nonce_field ?>
-    
-    
+ 
+
 
   <fieldset class="once-off">
   <legend>Once-off donation</legend>
@@ -17,17 +16,7 @@
         <span>Amount</span>
         <input type="text" size="25"  name="amount" class="input-amount"  value="<?php echo !empty($donate['defaults']['amount']) ? $donate['defaults']['amount'] : '' ?>" />
       </label>
-      <select name="currency">
-      <?php foreach( $currencies as $currency): ?>
-        <option value="<?php echo $currency?>" <?php echo !empty($donate['defaults']['currency']) && $donate['defaults']['currency'] == $currency ? 'selected="selected"' : '' ?> >
-          <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencyName(strtoupper($currency))?>
-           ( <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencySymbol(strtoupper($currency))?> )
-        </option>
-      <?php endforeach; ?>
-      </select>
     </div>
-
-
 </fieldset>
 
   <fieldset class="plans">
@@ -53,6 +42,9 @@
       </label>
     </div>
   </fieldset>
+
+
+
   
 
     <div class="form-row">
@@ -65,6 +57,17 @@
 
     <fieldset class="payment-details">
     <legend>Payment details</legend>
+    <div class="form-row">
+      <select name="currency">
+      <?php foreach( $currencies as $currency): ?>
+        <option value="<?php echo $currency?>" <?php echo !empty($donate['defaults']['currency']) && $donate['defaults']['currency'] == $currency ? 'selected="selected"' : '' ?> >
+          <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencyName(strtoupper($currency))?>
+           ( <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencySymbol(strtoupper($currency))?> )
+        </option>
+      <?php endforeach; ?>
+      </select>
+    </div>
+
     <div class="form-row">
       <label>
         <span>Card Number*</span>
@@ -111,8 +114,8 @@
     <fieldset class="giftaid-fields" >
       <div class="form-row">
         <label>
-          <span>Title*</span>
-          <input type="text" size="25" data-stripe="title"  name="customer[title]" class="input-title required" placeholder="Dr, Mr, Mrs, Miss, Ms" value="<?php echo !empty($donate['defaults']['customer']['title']) ? $donate['defaults']['customer']['title'] : '' ?>" />
+          <span>Title</span>
+          <input type="text" size="25" data-stripe="title"  name="customer[title]" class="input-title" placeholder="Dr, Mr, Mrs, Miss, Ms" value="<?php echo !empty($donate['defaults']['customer']['title']) ? $donate['defaults']['customer']['title'] : '' ?>" />
         </label>
       </div>
       <div class="form-row">
@@ -157,5 +160,5 @@
 
 
 
-    <button type="submit">Donate</button>
+    <button type="submit" id="donationform-submit-button">Donate</button>
   </form> 

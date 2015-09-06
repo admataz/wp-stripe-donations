@@ -136,9 +136,9 @@ class DonationForm extends Base {
       $customer_data['giftaid'] = 0;
     }
 
-    if($stripe->object == 'customer'){
+    if($stripe['object'] == 'customer'){
       $customer_data['stripe_type'] = 'customer';
-      $customer_data['stripe_id'] = $stripe->id;
+      $customer_data['stripe_id'] = $stripe['id'];
       $plan = \Stripe\Plan::retrieve($_POST['plan']);
       $customer_data['currency'] = $plan->currency;
 
@@ -152,10 +152,10 @@ class DonationForm extends Base {
       $customer_data['amount_converted'] = $amount;
     } else {
       $customer_data['stripe_type'] = 'charge';
-      $customer_data['stripe_id'] = $stripe->id;
-      $customer_data['currency'] = $stripe->currency;
-      $customer_data['amount'] = $stripe->amount;
-      $bt = \Stripe\BalanceTransaction::retrieve($stripe->balance_transaction);
+      $customer_data['stripe_id'] = $stripe['id'];
+      $customer_data['currency'] = $stripe['currency'];
+      $customer_data['amount'] = $stripe['amount'];
+      $bt = \Stripe\BalanceTransaction::retrieve($stripe['balance_transaction']);
       $customer_data['amount_converted'] = $bt->amount;
     }
 
@@ -217,21 +217,27 @@ class DonationForm extends Base {
       
       if (isset($payload['plan'])) {
         $stripe_response = \Stripe\Customer::create($payload);
+
+          $stripe = $stripe_response->jsonSerialize();
+
+        // error_log(var_export($stripe_response->jsonSerialize(), 1));
+
         $response = array(
           'type' => 'monthly',
-          'amount' => htmlspecialchars($stripe_response->plan->amount) . ' (monthly)',
+          'amount' => htmlspecialchars($stripe['subscriptions']['data'][0]['plan']['amount']) . ' (monthly)',
           'email' => htmlspecialchars($_POST['email']) ,
           'success' => true,
           'error' => false,
-          'stripe' => $stripe_response,
-          'created' => $stripe_response->created
+          'stripe' => $stripe,
+          'created' => $stripe['created']
         );
       } else {
         $stripe_response = \Stripe\Charge::create($payload);
+        $stripe = $stripe_response->jsonSerialize();
         if(!in_array(strtolower($payload['currency']), $this->zero_decimal_currencies)){
-          $amount = $stripe_response->amount/100;
+          $amount = $stripe['amount']/100;
         } else {
-          $amount = $stripe_response->amount;
+          $amount = $stripe['amount'];
         }
 
         $response = array(
@@ -239,8 +245,8 @@ class DonationForm extends Base {
           'amount' => $amount,
           'success' => true,
           'error' => false,
-          'stripe' => $stripe_response,
-          'created' => $stripe_response->created
+          'stripe' => $stripe,
+          'created' => $stripe['created']
         );
       }
     }
@@ -339,6 +345,7 @@ class DonationForm extends Base {
       );
     }
     // TODO: turn this into an Exception and try/catch and generally be more test driven
+    // $response->stripe = $response->stripe->jsonSerialize();
     print(json_encode($response));
     exit();
   }
