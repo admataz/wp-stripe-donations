@@ -54,14 +54,22 @@ function adz_stripe_donations_form_submit() {
 }
 
 function adz_stripe_donations_stripe_webhook_listener() {
-    $adz_stripe_donation_form = \adz_stripe_donations\DonationForm::get_instance('adz_stripe_donations_form');
-    $adz_stripe_donation_form->stripe_webhook_charge_endpoint();
+    if(isset($_GET['stripe_webhook_event']) && $_GET['stripe_webhook_event'] == 'charge.create'){
+        error_log('LOG:  - Stripe endpoint activated');
+        $adz_stripe_donation_form = \adz_stripe_donations\DonationForm::get_instance('adz_stripe_donations_form');
+        $adz_stripe_donation_form->stripe_webhook_charge_endpoint();
+    }
 }
 
 
 function adz_stripe_donations_donations_export_csv(){
-    $reports = \adz_stripe_donations\Reports::get_instance('adz_stripe_donations_form');
-    $reports->export_donors_csv();
+
+    if(isset($_GET['donation_report_export']) && $_GET['donation_report_export'] == 'csv' && current_user_can('manage_options')){
+            // admin_export_donations.csv
+            $reports = \adz_stripe_donations\Reports::get_instance('adz_stripe_donations_form');
+            $reports->export_donors_csv();
+    }
+
 }
 
 
@@ -69,8 +77,8 @@ add_shortcode('adz_stripe_donations_default_form', 'adz_stripe_donations_default
 add_action('admin_menu', 'adz_stripe_admin_menu');
 add_action('wp_ajax_submit_donation', 'adz_stripe_donations_form_submit');
 add_action('wp_ajax_nopriv_submit_donation', 'adz_stripe_donations_form_submit');
-add_action('stripe_webhook', 'adz_stripe_donations_stripe_webhook_listener');
-add_action( 'admin_export_donations.csv', 'adz_stripe_donations_donations_export_csv' );
+add_action('init', 'adz_stripe_donations_stripe_webhook_listener');
+add_action( 'init', 'adz_stripe_donations_donations_export_csv' );
 
 
 register_activation_hook(__FILE__, 'adz_stripe_donations_activate');

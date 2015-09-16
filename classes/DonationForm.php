@@ -122,7 +122,7 @@ class DonationForm extends Base {
     function save_extra_data($response) {
         // \Stripe\Stripe::setApiKey($this->stripe_private_key);
         
-        // $stripe = $response['stripe'];
+        $stripe = $response['stripe'];
         
         $customer_data = array();
         
@@ -338,14 +338,23 @@ class DonationForm extends Base {
     public function save_stripe_charge($stripe) {
         \Stripe\Stripe::setApiKey($this->stripe_private_key);
         // $stripe = $stripe_response->jsonSerialize();
+        $charge_obj = $stripe['data']['object'];
         $charge_data = array();
-        $charge_data['stripe_id'] = $stripe['id'];
-        $charge_data['currency'] = $stripe['currency'];
-        $charge_data['amount'] = $stripe['amount'];
-        $bt = \Stripe\BalanceTransaction::retrieve($stripe['balance_transaction']);
+        $charge_data['stripe_id'] = $charge_obj['id'];
+        $charge_data['currency'] = $charge_obj['currency'];
+        $charge_data['amount'] = $charge_obj['amount'];
+        $charge_data['created'] = $charge_obj['created'];
+        $bt = \Stripe\BalanceTransaction::retrieve($charge_obj['balance_transaction']);
         $charge_data['amount_converted'] = $bt->amount;
+
+        if ($charge_obj['source']['customer']) {
+            $stripe_id = $charge_obj['source']['customer'];
+        } 
+        else {
+            $stripe_id = $charge_obj['id'];
+        }
         
-        \adz_stripe_donations\CustomSave::save_stripe_charge_detail($charge_data);
+        \adz_stripe_donations\CustomSave::save_stripe_charge_detail($charge_data, $stripe_id);
     }
     /**
      * call this on hook_init
@@ -359,12 +368,14 @@ class DonationForm extends Base {
             // See your keys here https://dashboard.stripe.com/account/apikeys
             \Stripe\Stripe::setApiKey($this->stripe_private_key);
             // Retrieve the request's body and parse it as JSON
-            $input = @file_get_contents("php://input");
+            $input = file_get_contents("php://input");
+
+
             $charge_json = json_decode($input, TRUE);
             // Do something with $event_json
             $this->save_stripe_charge($charge_json);
             
-            http_response_code(200); // PHP 5.4 or greater
+            http_response_code(500); // PHP 5.4 or greater
             return;
         // }
     }

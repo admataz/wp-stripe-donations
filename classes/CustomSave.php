@@ -54,27 +54,21 @@ class CustomSave {
         global $wpdb;
         $table_name = $wpdb->prefix . "adz_stripe_donors";
         $to_save['created'] = date("Y-m-d H:i:s", $to_save['created']);
-        $existing_id = $wpdb->get_var('id', "SELECT id FROM $table_name WHERE email=%s", $to_save['email']);
+        $existing_id = $wpdb->get_var($wpdb->prepare("SELECT id FROM $table_name WHERE email=%s", $to_save['email']));
         if($existing_id){
-          $q = $wpdb->udpate($table_name, $to_save, array('id'=>$existing_id));
+          $q = $wpdb->update($table_name, $to_save, array('id'=>$existing_id));
         } else {
         // create the record if no existing one was found
           $q = $wpdb->insert($table_name, $to_save);
         }
     }
     
-    public static function save_stripe_charge_detail($charge_data) {
+    public static function save_stripe_charge_detail($charge_data, $stripe_id) {
+        global $wpdb;
         $charges_table_name = $wpdb->prefix . "adz_stripe_donation_charges";
         $donors_table_name = $wpdb->prefix . "adz_stripe_donors";
-        // this is a repeat payment from a plan
-        if ($stripe_data['source']['customer']) {
-            $stripe_id = $stripe_data['source']['customer'];
-        } 
-        else {
-            $stripe_id = $stripe_data->id;
-        }
         
-        $existing = $wpdb->get_var('email', "SELECT email FROM $donors_table_name WHERE stripe_id=%s", $stripe_id);
+        $existing = $wpdb->get_var($wpdb->prepare("SELECT email FROM $donors_table_name WHERE stripe_id=%s", $stripe_id));
         
         if($existing){
           $charge_data['email'] = $existing;
@@ -82,7 +76,7 @@ class CustomSave {
           $charge_data['email'] = 'unknown user';
         }
 
-        $q = $wpdb->insert($charges_table_name, $to_save);
+        $q = $wpdb->insert($charges_table_name, $charge_data);
 
 
     }
