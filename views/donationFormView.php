@@ -17,6 +17,17 @@
         <input type="text" size="25"  name="amount" class="input-amount"  value="<?php echo !empty($donate['defaults']['amount']) ? $donate['defaults']['amount'] : '' ?>" />
       </label>
     </div>
+    <div class="form-row">
+      <select name="currency">
+      <?php foreach( $currencies as $currency): ?>
+        <option value="<?php echo $currency?>" <?php echo !empty($donate['defaults']['currency']) && $donate['defaults']['currency'] == $currency ? 'selected="selected"' : '' ?> >
+          <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencyName(strtoupper($currency))?>
+           ( <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencySymbol(strtoupper($currency))?> )
+        </option>
+      <?php endforeach; ?>
+      </select>
+    </div>
+
 </fieldset>
 
   <fieldset class="plans">
@@ -56,18 +67,7 @@
 
 
     <fieldset class="payment-details">
-    <legend>Payment details</legend>
-    <div class="form-row">
-      <select name="currency">
-      <?php foreach( $currencies as $currency): ?>
-        <option value="<?php echo $currency?>" <?php echo !empty($donate['defaults']['currency']) && $donate['defaults']['currency'] == $currency ? 'selected="selected"' : '' ?> >
-          <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencyName(strtoupper($currency))?>
-           ( <?php echo \Symfony\Component\Intl\Intl::getCurrencyBundle()->getCurrencySymbol(strtoupper($currency))?> )
-        </option>
-      <?php endforeach; ?>
-      </select>
-    </div>
-
+    
     <div class="form-row">
       <label>
         <span>Card Number*</span>
@@ -87,7 +87,7 @@
       <div class="cc-exp">
         <label>
           <span>Expiration (MM/YYYY)*</span>
-          <input type="text" size="2" data-stripe="exp-month" name="exp-month" id="exp-month" class="exp-month" placeholder="MM" required  value="<?php echo !empty($donate['defaults']['exp-month']) ? $donate['defaults']['exp-month'] : '' ?>" />
+          <input type="text" size="3" data-stripe="exp-month" name="exp-month" id="exp-month" class="exp-month" placeholder="MM" required  value="<?php echo !empty($donate['defaults']['exp-month']) ? $donate['defaults']['exp-month'] : '' ?>" />
         </label>
         <span> / </span>
         <input type="text" size="4" data-stripe="exp-year" name="exp-year" id="exp-month"  class="exp-year" placeholder="YYYY" required  value="<?php echo !empty($donate['defaults']['exp-year']) ? $donate['defaults']['exp-year'] : '' ?>"  />

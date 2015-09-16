@@ -167,7 +167,7 @@ function onFormSubmit( event ) {
   Stripe.card.createToken( $form, stripeResponseHandler );
 
   if(form_submitted_callback){
-    form_submitted_callback(res);
+    form_submitted_callback();
   }
   
   // Prevent the form from submitting with the default action
