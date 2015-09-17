@@ -12,7 +12,7 @@ class DonationForm extends Base {
     private $stripe_public_key = '';
     private $stripe_private_key = '';
     var $nonce_id = 'legend of big jo and phantom 309';
-    private $zero_decimal_currencies = array(
+    static $zero_decimal_currencies = array(
         'bif',
         'clp',
         'djf',
@@ -137,6 +137,7 @@ class DonationForm extends Base {
         $customer_data['plan'] = htmlspecialchars($_POST['plan']);
         $customer_data['created'] = $response['created'];
         $customer_data['email'] = htmlspecialchars($_POST['email']);
+        $customer_data['name'] = htmlspecialchars($_POST['cc-name']);
         
         if (isset($_POST['giftaid'])) {
             $customer_data['giftaid'] = 1;
@@ -145,34 +146,14 @@ class DonationForm extends Base {
             $customer_data['giftaid'] = 0;
         }
         // no longer saving the charge in this step  - as it doesn't work for repeated payments - going to rely on Stripe webhooks
-        
         if ($stripe['object'] == 'customer') {
             $customer_data['stripe_type'] = 'customer';
             $customer_data['stripe_id'] = $stripe['id'];
-            // $plan = \Stripe\Plan::retrieve($_POST['plan']);
-            // $customer_data['currency'] = $plan->currency;
-            
-            // if($_POST['plan'] == 'monthly_custom'){
-            //   $amount = $_POST['quantity'] * $plan->amount;
-            // } else {
-            //   $amount = $plan->amount;
-            // }
-            
-            // $customer_data['amount'] = $amount;
-            // $customer_data['amount_converted'] = $amount;
-            
         } 
         else {
             $customer_data['stripe_type'] = 'charge';
             $customer_data['stripe_id'] = $stripe['id'];
-            // $customer_data['currency'] = $stripe['currency'];
-            // $customer_data['amount'] = $stripe['amount'];
-            // $bt = \Stripe\BalanceTransaction::retrieve($stripe['balance_transaction']);
-            // $customer_data['amount_converted'] = $bt->amount;
-            
         }
-        // \adz_stripe_donations\CustomSave::add_record($customer_data);
-        
         \adz_stripe_donations\CustomSave::save_donor_detail($customer_data);
     }
     
@@ -187,7 +168,6 @@ class DonationForm extends Base {
         );
         
         \Stripe\Stripe::setApiKey($this->stripe_private_key);
-        
         
         try {
             $plan = \Stripe\Plan::retrieve($_POST['plan']);
@@ -212,7 +192,7 @@ class DonationForm extends Base {
         else {
             $payload['currency'] = $_POST['currency'];
             $payload['receipt_email'] = $_POST['email'];
-            if (!in_array(strtolower($payload['currency']) , $this->zero_decimal_currencies)) {
+            if (!in_array(strtolower($payload['currency']) , self::zero_decimal_currencies)) {
                 $payload['amount'] = $_POST['amount'] * 100;
             } 
             else {
@@ -225,16 +205,11 @@ class DonationForm extends Base {
     
     function handle_stripe_response($payload) {
         // Send the request to Stripe
-        
-        
         try {
-            
             if (isset($payload['plan'])) {
                 $stripe_response = \Stripe\Customer::create($payload);
-                
                 $stripe = $stripe_response->jsonSerialize();
                 // error_log(var_export($stripe_response->jsonSerialize(), 1));
-                
                 $response = array(
                     'type' => 'monthly',
                     'amount' => htmlspecialchars($stripe['subscriptions']['data'][0]['plan']['amount']) . ' (monthly)',
@@ -248,7 +223,7 @@ class DonationForm extends Base {
             else {
                 $stripe_response = \Stripe\Charge::create($payload);
                 $stripe = $stripe_response->jsonSerialize();
-                if (!in_array(strtolower($payload['currency']) , $this->zero_decimal_currencies)) {
+                if (!in_array(strtolower($payload['currency']) , self::zero_decimal_currencies)) {
                     $amount = $stripe['amount'] / 100;
                 } 
                 else {

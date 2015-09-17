@@ -55,7 +55,6 @@ function adz_stripe_donations_form_submit() {
 
 function adz_stripe_donations_stripe_webhook_listener() {
     if(isset($_GET['stripe_webhook_event']) && $_GET['stripe_webhook_event'] == 'charge.create'){
-        error_log('LOG:  - Stripe endpoint activated');
         $adz_stripe_donation_form = \adz_stripe_donations\DonationForm::get_instance('adz_stripe_donations_form');
         $adz_stripe_donation_form->stripe_webhook_charge_endpoint();
     }

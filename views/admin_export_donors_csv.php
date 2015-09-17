@@ -8,7 +8,7 @@ define('CSV_SEPARATOR', ',');
 $fp = fopen('php://output', 'w');
 
 // List of columns
-$columns = array_keys((array)$posts[0]);
+$columns = array_keys((array)$items[0]);
 
 // GET RID OF 'SYLK' ERROR ON MACS! 
 // http://support.microsoft.com/kb/215591
@@ -17,7 +17,7 @@ foreach($columns as $k=>$v){
 }
 
 
-foreach ($posts as $key => $row) {
+foreach ($items as $key => $row) {
   $row = (array)$row;
   // Write columns
   if ($key == 0) {

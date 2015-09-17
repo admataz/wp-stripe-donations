@@ -127,7 +127,7 @@
       <div class="form-row">
         <label>
           <span>Last name*</span>
-          <input type="text" size="25" data-stripe="last-name"  name="customer[last-name]" class="input-lastname required" value="<?php echo !empty($donate['defaults']['customer']['last-name']) ? $donate['defaults']['customer']['last-name'] : '' ?>" />
+          <input type="text" size="25" data-stripe="last-name"  name="customer[last_name]" class="input-lastname required" value="<?php echo !empty($donate['defaults']['customer']['last_name']) ? $donate['defaults']['customer']['last_name'] : '' ?>" />
         </label>
       </div>
       <div class="form-row">
@@ -144,8 +144,8 @@
       </div>
       <div class="form-row">
         <label>
-          <span>Address 3</span>
-          <input type="text" size="25" data-stripe="address-3" name="customer[address_3]" class="input-address3" value="<?php echo !empty($donate['defaults']['customer']['address_3']) ? $donate['defaults']['customer']['address_3'] : '' ?>" />
+          <span>City</span>
+          <input type="text" size="25" data-stripe="city" name="customer[city]" class="input-city" value="<?php echo !empty($donate['defaults']['customer']['city']) ? $donate['defaults']['customer']['city'] : '' ?>" />
         </label>
       </div>                            
       <div class="form-row">
