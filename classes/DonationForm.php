@@ -192,7 +192,7 @@ class DonationForm extends Base {
         else {
             $payload['currency'] = $_POST['currency'];
             $payload['receipt_email'] = $_POST['email'];
-            if (!in_array(strtolower($payload['currency']) , self::zero_decimal_currencies)) {
+            if (!in_array(strtolower($payload['currency']) , self::$zero_decimal_currencies)) {
                 $payload['amount'] = $_POST['amount'] * 100;
             } 
             else {
@@ -223,7 +223,7 @@ class DonationForm extends Base {
             else {
                 $stripe_response = \Stripe\Charge::create($payload);
                 $stripe = $stripe_response->jsonSerialize();
-                if (!in_array(strtolower($payload['currency']) , self::zero_decimal_currencies)) {
+                if (!in_array(strtolower($payload['currency']) , self::$zero_decimal_currencies)) {
                     $amount = $stripe['amount'] / 100;
                 } 
                 else {

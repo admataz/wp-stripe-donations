@@ -41,11 +41,13 @@
 
 
   <tbody>
-  <?php foreach($items as $item): ?>
+  <?php 
+setlocale(LC_MONETARY, 'en_GB');
+  foreach($items as $item): ?>
     <tr>
         <td><?php echo $item['name'] ?></td>
         <td><?php echo $item['plan'] ?></td>
-        <td><?php echo $item['amount'] ?></td>
+        <td><?php echo money_format('%.2n', $item['amount']/100) ?></td>
         <td><?php echo $item['giftaid'] ?></td>
         <td ><a href="#" class="show-detail" ><?php echo count($item['payments']) ?></a>
             <div class="payment-detail detail-cell" style="display:none;position:absolute; background:#fff; padding: 2px; font-size:smaller; border: 1px solid #999">

@@ -118,9 +118,32 @@ class CustomSave {
             unset($value['extra_fields']);
             $dbresult[$key] = array_merge($value, $userdata);
         }
+        $results = array();
         // just want the unaggregated charges? return now
         if (!$aggregated) {
-            return $dbresult;
+
+            foreach ($dbresult as $key => $value) {
+
+              $results[$value['email']] = array(
+                "name" => $value['name'],
+                "email" => $value['email'], 
+                "title" => $value['title'], 
+                "first_name" => $value['first_name'],  
+                "last_name" => $value['last_name'], 
+                "address_1" => $value['address_1'], 
+                "address_2" => $value['address_2'], 
+                "city" => $value['city'],  
+                "plan" => $value['plan'],  
+                "giftaid" => $value['giftaid'], 
+                "stripe_id" => $value['stripe_id'], 
+                "last_charge_date" => date('Y-m-d h:i:s', $value['charge_date']), 
+                "currency" => $value['currency'],  
+                "last_charge_id" => $value['charge_id'], 
+                "last_charge_amount" => number_format($value['amount']/100, 2),
+                );
+            }
+            return array_values($results);
+
         }
         // still here? you must want the compiled aggregated results
         $results = array();
@@ -146,6 +169,8 @@ class CustomSave {
                     );
                 $results[$value['email']]['amount']+= $value['amount'];
             }
+
+            
         }
         
         return $results;

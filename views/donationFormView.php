@@ -114,8 +114,8 @@
     <fieldset class="giftaid-fields" >
       <div class="form-row">
         <label>
-          <span>Title</span>
-          <input type="text" size="25" data-stripe="title"  name="customer[title]" class="input-title" placeholder="Dr, Mr, Mrs, Miss, Ms" value="<?php echo !empty($donate['defaults']['customer']['title']) ? $donate['defaults']['customer']['title'] : '' ?>" />
+          <span>Title*</span>
+          <input type="text" size="25" data-stripe="title"  name="customer[title]" class="input-title required" placeholder="Dr, Mr, Mrs, Miss, Ms" value="<?php echo !empty($donate['defaults']['customer']['title']) ? $donate['defaults']['customer']['title'] : '' ?>" />
         </label>
       </div>
       <div class="form-row">
@@ -144,8 +144,8 @@
       </div>
       <div class="form-row">
         <label>
-          <span>City</span>
-          <input type="text" size="25" data-stripe="city" name="customer[city]" class="input-city" value="<?php echo !empty($donate['defaults']['customer']['city']) ? $donate['defaults']['customer']['city'] : '' ?>" />
+          <span>City*</span>
+          <input type="text" size="25" data-stripe="city" name="customer[city]" class="input-city required" value="<?php echo !empty($donate['defaults']['customer']['city']) ? $donate['defaults']['customer']['city'] : '' ?>" />
         </label>
       </div>                            
       <div class="form-row">
