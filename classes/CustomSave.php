@@ -133,6 +133,7 @@ class CustomSave {
                 "address_1" => $value['address_1'], 
                 "address_2" => $value['address_2'], 
                 "city" => $value['city'],  
+                "postcode" => $value['postcode'],  
                 "plan" => $value['plan'],  
                 "giftaid" => $value['giftaid'], 
                 "stripe_id" => $value['stripe_id'], 
